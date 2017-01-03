@@ -1,11 +1,13 @@
 // Config
-var yammerGroupId = "10215902";
-var yammerOauth2Token = "4006-Ki5YBLdI8owX2XFHppo0A";
+var yammerGroupId = "yourYammerGroupId";
+var yammerOauth2Token = "yourOauthToken";
 var RssCheckIntervalInMn = 5;
 var RssFeedsList = [
 	'http://www.alsacreations.com/rss/apprendre.xml',
 	'http://web.developpez.com/index/rss'
 ];
+// flat-file-db
+var flatfile = require('flat-file-db');
 
 // Yammer client
 var YammerAPIClient = require('yammer-rest-api-client'),
@@ -18,12 +20,16 @@ var FeedParser = require('feedparser')
 // Scheduler
 var schedule = require('node-schedule');
  
- 
 // Start the auto post scheduler
 var rule = new schedule.RecurrenceRule();
 rule.minute = new schedule.Range(0, 59, RssCheckIntervalInMn);
- 
+
+// 1 db per day
+
 var j = schedule.scheduleJob(rule, function(){	
+	// Daily database
+	var db = flatfile(dayDB());
+	
 	// Loop through RSS Feed links
     for (i = 0; i < RssFeedsList.length; i++) {
 		// Parse feeds  
@@ -50,31 +56,41 @@ var j = schedule.scheduleJob(rule, function(){
 			, meta = this.meta // **NOTE** the “meta” is always available in the context of the feedparser instance 
 			, item;
 
-		  while (item = stream.read()) {
-			  
-			var message = item.title + ' | ' + item.link;
-			
-			// send message to yammer
-			client.messages.create({
-					group_id: yammerGroupId, 
-					body: message
-				}, 
-			function(error, data) {
-				if(error) {
-					console.log("There was an error posting the data");
-					console.log(error);
-				}
+			while (item = stream.read()) {
+				// check if the link has already been posted
+				if(db.has(item.link) === false) {
+					// Add link to database
+					db.on('open', function() {
+						db.put('itemLink', item.link);  // store some data
+					});
+					// send message to yammer
 					
-				else {
-					console.log("Data posted");
-					console.log(data);
 				}
-			})
-			
-		  }
+			}		
 		});
 	}
 });
+
+function dayDB(){
+	var path = require('path');
+	var appDir = path.dirname(require.main.filename);
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth()+1; //January is 0!
+	var yyyy = today.getFullYear();
+
+	if(dd<10) {
+		dd='0'+dd
+	} 
+
+	if(mm<10) {
+		mm='0'+mm
+	} 
+	
+	today = appDir+'\\db\\'+mm+'-'+dd+'-'+yyyy+'.db';
+	console.log(today);
+	return(today);
+}
 
 
 	  
