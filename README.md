@@ -11,10 +11,11 @@ DONE :
 - Parse RSS Feeds
 - Post to yammer group
 - Add RSS check interval
+- Add daily flat database to store the posted links
 
 TODO :
-- Add a local db to store what has already been posted
 - Add yammer token generation function
+- Add itemTime verification before posting a link
 
 
 

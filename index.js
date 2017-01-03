@@ -1,6 +1,6 @@
 // Config
-var yammerGroupId = "yourYammerGroupId";
-var yammerOauth2Token = "yourOauthToken";
+var yammerGroupId = "10215902";
+var yammerOauth2Token = "4006-Ki5YBLdI8owX2XFHppo0A";
 var RssCheckIntervalInMn = 5;
 var RssFeedsList = [
 	'http://www.alsacreations.com/rss/apprendre.xml',
