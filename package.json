@@ -1,0 +1,27 @@
+{
+  "name": "yammer-group-feeder",
+  "version": "1.0.0",
+  "description": "auto post to yammer group from rss feed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christophe77/yammer-group-feeder.git"
+  },
+  "keywords": [
+    "yammer"
+  ],
+  "author": "christophe bellec",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/christophe77/yammer-group-feeder/issues"
+  },
+  "homepage": "https://github.com/christophe77/yammer-group-feeder#readme",
+  "dependencies": {
+    "feedparser": "^2.0.0",
+    "request": "^2.79.0",
+    "yammer-rest-api-client": "latest"
+  }
+}
