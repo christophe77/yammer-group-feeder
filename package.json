@@ -1,6 +1,6 @@
 {
   "name": "yammer-group-feeder",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "auto post to yammer group from rss feed",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "yammer"
   ],
   "author": "christophe bellec",
-  "license": "MIT",
+  "license": "GPL",
   "bugs": {
     "url": "https://github.com/christophe77/yammer-group-feeder/issues"
   },
