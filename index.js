@@ -1,10 +1,10 @@
 // Config
-var yammerGroupId = "10215902";
-var yammerOauth2Token = "4006-Ki5YBLdI8owX2XFHppo0A";
-var RssCheckIntervalInMn = 1;
+var yammerGroupId = "11111111";
+var yammerDeveloperToken = "11111111";
+var RssCheckIntervalInMn = 10;
 var RssFeedsList = [
-	'http://feeds2.feedburner.com/kgaut',
-	'http://www.magazineduwebdesign.com/feed.xml'
+	'http://anysite.com/anyfeed/feed.xml',
+	'http://www.anysite2.com/rss/feed.xml'
 ];
 
 //Fix the maxlisteners bug
