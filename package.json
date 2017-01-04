@@ -21,7 +21,7 @@
   "homepage": "https://github.com/christophe77/yammer-group-feeder#readme",
   "dependencies": {
     "feedparser": "^2.0.0",
-    "flat-file-db": "^1.0.0",
+    "lowdb": "^0.14.0",
     "node-schedule": "^1.2.0",
     "request": "^2.79.0",
     "yammer-rest-api-client": "latest"
