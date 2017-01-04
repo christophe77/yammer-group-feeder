@@ -1,33 +1,52 @@
 // Config
-var yammerGroupId = "";
-var yammerOauth2Token = "";
+var yammerGroupId = "10215902";
+var yammerOauth2Token = "4006-Ki5YBLdI8owX2XFHppo0A";
 var RssCheckIntervalInMn = 1;
 var RssFeedsList = [
 	'http://www.alsacreations.com/rss/apprendre.xml',
-	'http://web.developpez.com/index/rss'
+	'http://web.developpez.com/index/rss',
+	'http://feeds2.feedburner.com/kgaut'
 ];
 
 //Fix the maxlisteners bug
 require('events').EventEmitter.defaultMaxListeners = Infinity;
 
-// we create a daily database
-function dayDB(){
+// FS
+var fs = require('fs');	
+
+// Usefull functions
+function getTodayDbName(){ 
+	var date = new Date();
+	var pieces     = date.toString().split(' '),
+		parts      = [
+			pieces[0],
+			pieces[2],
+			pieces[1],
+			pieces[3] + '.db',
+		];
+  return parts.join('-');
+}
+function getTodayDbPath(){
 	var path = require('path');
 	var appDir = path.dirname(require.main.filename);
-	var today = new Date();
-	var dd = today.getDate();
-	var mm = today.getMonth()+1; //January is 0!
-	var yyyy = today.getFullYear();
-
-	if(dd<10) {
-		dd='0'+dd
-	} 
-
-	if(mm<10) {
-		mm='0'+mm
-	} 	
-	today = appDir+'\\db\\'+mm+'-'+dd+'-'+yyyy+'.db';
-	return(today);
+	var dbFullPath = appDir+'\\db\\'+ getTodayDbName();
+	if(!fs.existsSync(dbFullPath)){
+		fs.writeFile(dbFullPath, '', function (err) {
+			if (err) throw err;
+			console.log('It\'s saved! in same location.');
+		});
+	}
+	return(dbFullPath);
+}
+function getDbNameFromPubDate(pubDate){ 
+	var pieces     = pubDate.toString().split(' '),
+		parts      = [
+			pieces[0].replace(",", ""),
+			pieces[2],
+			pieces[1],
+			pieces[3] + '.db',
+		];
+  return parts.join('-');
 }
 
 // Yammer client
@@ -41,7 +60,6 @@ var FeedParser = require('feedparser')
 // Scheduler
 var schedule = require('node-schedule');
  
-
 // Start the auto post scheduler
 var rule = new schedule.RecurrenceRule();
 rule.minute = new schedule.Range(0, 59, RssCheckIntervalInMn);
@@ -53,10 +71,8 @@ var j = schedule.scheduleJob(rule, function(){
 		// Parse feeds  
 		var req = request(RssFeedsList[i]) 
 		  , feedparser = new FeedParser();
-		  
-		
+		  		
 		req.on('error', function (error) {  
-		  // handle any request errors 
 			console.log("There was an error requesting the datas");
 			console.log(error);
 		});
@@ -72,44 +88,45 @@ var j = schedule.scheduleJob(rule, function(){
 		});
 		feedparser.on('readable', function() {  
 		  var stream = this
-			, meta = this.meta // **NOTE** the “meta” is always available in the context of the feedparser instance 
+			, meta = this.meta
 			, item;
 
 		  while (item = stream.read()) {
-			// check if the link has already been posted
-			
-			if(item.link){
+			// check if feed is valid			
+			if(item.link && item.pubDate && item.title){
 				var cLink = item.link;
 				var cTitle = item.title;
-				var fs = require('fs');				
-				fs.readFile(dayDB(), function (err, data) {
-					if (err) throw err;
-					if(data.indexOf(cLink) < 0){
-						fs.appendFile(dayDB(), cLink, function (err) {
-							if (err) throw err;
-						});
-						// Send to yammer
-						var message = cTitle + ' | ' + cLink;
-						client.messages.create({
-							group_id: yammerGroupId, 
-							body: message
-						}, 
-						function(error, data) {
-							if(error) {
-								console.log("There was an error posting the data");
-								console.log(error);
-							}
-												
-							else {
+				var cDate = item.pubDate;
+				// if feed is new then we post it
+				if(getDbNameFromPubDate(cDate) === getTodayDbName()){				
+					fs.readFile(getTodayDbPath(), function (err, data) {
+						if (err) throw err;
+						if(data.indexOf(cLink) < 0){
+							// Insert into our flat db
+							fs.appendFile(getTodayDbPath(), cLink, function (err) {
+								if (err) throw err;
+							});
+							// Send to yammer
+							var message = cTitle + ' | ' + cLink;
+							client.messages.create({
+								group_id: yammerGroupId, 
+								body: message
+							}, 
+							function(error, data) {
+								if(error) {
+									console.log("There was an error posting the data");
+									console.log(error);
+								}
+													
+								else {
 									console.log("Data posted");
 									//console.log(data);
-							}
-						})
-					}
+								}
+							})
+						}
 
-				});
-
-				
+					});	
+				}
 			}
 		  }		  
 		});

@@ -12,10 +12,9 @@ DONE :
 - Post to yammer group
 - Add RSS check interval
 - Add daily flat database to store the posted links
+- Add item.pubDate verification
 
 TODO :
 - Add yammer token generation function
-- Add itemTime verification before posting a link
-
-
-
+- Write a tutorial for Yammer API
+- Organize the code!
