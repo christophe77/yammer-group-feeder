@@ -1,11 +1,10 @@
 // Config
-var yammerGroupId = "yourYammerGroupId";
-var yammerOauth2Token = "yourYammerTestToken";
+var yammerGroupId = "10215902";
+var yammerOauth2Token = "4006-Ki5YBLdI8owX2XFHppo0A";
 var RssCheckIntervalInMn = 1;
 var RssFeedsList = [
-	'http://www.alsacreations.com/rss/apprendre.xml',
-	'http://web.developpez.com/index/rss',
-	'http://feeds2.feedburner.com/kgaut'
+	'http://feeds2.feedburner.com/kgaut',
+	'http://www.magazineduwebdesign.com/feed.xml'
 ];
 
 //Fix the maxlisteners bug
@@ -17,8 +16,8 @@ var fs = require('fs');
 // Usefull functions
 function getTodayDbName(){ 
 	var date = new Date();
-	var pieces     = date.toString().split(' '),
-		parts      = [
+	var pieces = date.toString().split(' '),
+		parts = [
 			pieces[0],
 			pieces[2],
 			pieces[1],
@@ -31,16 +30,15 @@ function getTodayDbPath(){
 	var appDir = path.dirname(require.main.filename);
 	var dbFullPath = appDir+'\\db\\'+ getTodayDbName();
 	if(!fs.existsSync(dbFullPath)){
-		fs.writeFile(dbFullPath, '', function (err) {
+		fs.writeFile(dbFullPath, getTodayDbName() + '\n', function (err) {
 			if (err) throw err;
-			console.log('It\'s saved! in same location.');
 		});
 	}
 	return(dbFullPath);
 }
 function getDbNameFromPubDate(pubDate){ 
-	var pieces     = pubDate.toString().split(' '),
-		parts      = [
+	var pieces = pubDate.toString().split(' '),
+		parts = [
 			pieces[0].replace(",", ""),
 			pieces[2],
 			pieces[1],
@@ -98,34 +96,31 @@ var j = schedule.scheduleJob(rule, function(){
 				var cTitle = item.title;
 				var cDate = item.pubDate;
 				// if feed is new then we post it
-				if(getDbNameFromPubDate(cDate) === getTodayDbName()){				
-					fs.readFile(getTodayDbPath(), function (err, data) {
-						if (err) throw err;
-						if(data.indexOf(cLink) < 0){
-							// Insert into our flat db
-							fs.appendFile(getTodayDbPath(), cLink, function (err) {
-								if (err) throw err;
-							});
-							// Send to yammer
-							var message = cTitle + ' | ' + cLink;
-							client.messages.create({
-								group_id: yammerGroupId, 
-								body: message
-							}, 
-							function(error, data) {
-								if(error) {
-									console.log("There was an error posting the data");
-									console.log(error);
-								}
-													
-								else {
-									console.log("Data posted");
-									//console.log(data);
-								}
-							})
-						}
-
-					});	
+				if(getDbNameFromPubDate(cDate) === getTodayDbName()){
+					var content = fs.readFileSync(getTodayDbPath(),'utf8')
+					if(content.indexOf(cLink) < 0){
+						// Insert into our flat db
+						fs.appendFile(getTodayDbPath(), cLink + '\n', function (err) {
+							if (err) throw err;
+						});
+						// Send to yammer
+						var message = cTitle + '\r\n' + cLink;
+						client.messages.create({
+							group_id: yammerGroupId, 
+							body: message
+						}, 
+						function(error, data) {
+							if(error) {
+								console.log("There was an error posting the data");
+								console.log(error);
+							}
+												
+							else {
+								console.log("Data posted");
+								//console.log(data);
+							}
+						})
+					}	
 				}
 			}
 		  }		  
