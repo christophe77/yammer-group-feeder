@@ -3,8 +3,9 @@ var yammerGroupId = "11111111";
 var yammerDeveloperToken = "11111111";
 var RssCheckIntervalInMn = 10;
 var RssFeedsList = [
-	'http://anysite.com/anyfeed/feed.xml',
-	'http://www.anysite2.com/rss/feed.xml'
+	'http://blog.eleven-labs.com/feed/',
+	'http://feeds2.feedburner.com/kgaut',
+	'http://wodric.com/feed/'	
 ];
 
 //Fix the maxlisteners bug
@@ -49,7 +50,7 @@ function getDbNameFromPubDate(pubDate){
 
 // Yammer client
 var YammerAPIClient = require('yammer-rest-api-client'),
-    client = new YammerAPIClient({ token: yammerOauth2Token }); 
+    client = new YammerAPIClient({ token: yammerDeveloperToken }); 
 	
 // Feed parser
 var FeedParser = require('feedparser')  
