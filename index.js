@@ -1,11 +1,18 @@
 // Config
-var yammerGroupId = "11111111";
-var yammerDeveloperToken = "11111111";
-var RssCheckIntervalInMn = 10;
+var yammerGroupId = "xxxxxx";
+var yammerDeveloperToken = "xxxxxx";
+var RssCheckIntervalInMn = 1;
 var RssFeedsList = [
 	'http://blog.eleven-labs.com/feed/',
 	'http://feeds2.feedburner.com/kgaut',
-	'http://wodric.com/feed/'	
+	'http://wodric.com/feed/',
+	'https://blog.frankel.ch/feed.xml',
+	'http://gkueny.fr/feed.xml',	
+	'https://blog.risingstack.com/rss/',
+	'http://javaetmoi.com/feed/',
+	'http://www.tiger-222.fr/rss.php',
+	'https://zestedesavoir.com/articles/flux/rss/',
+	'http://blog.nicolashachet.com/feed/'	
 ];
 
 //Fix the maxlisteners bug
@@ -62,9 +69,8 @@ var schedule = require('node-schedule');
 // Start the auto post scheduler
 var rule = new schedule.RecurrenceRule();
 rule.minute = new schedule.Range(0, 59, RssCheckIntervalInMn);
- 
+
 var j = schedule.scheduleJob(rule, function(){	
-	
 	// Loop through RSS Feed links
     for (i = 0; i < RssFeedsList.length; i++) {
 		// Parse feeds  
