@@ -1,6 +1,6 @@
 // Config
-var yammerGroupId = '1111111111';
-var yammerDeveloperToken = '1234-abc123';
+var yammerGroupId = '11111111';
+var yammerDeveloperToken = '1111-abC123';
 var RssCheckIntervalInMn = 1;
 var RssFeedsList = [
     'http://blog.soat.fr/feed/',
@@ -13,21 +13,18 @@ var RssFeedsList = [
     'http://blog.nicolashachet.com/feed/'
 ];
 
-console.log(getTodayDbName())
-    // FS
+// FS
 var fs = require('fs');
+
 // Usefull functions
 function getTodayDbName() {
     var pieces = (new Date())
-        .toString()
-        .split(' '),
+        .toISOString()
+        .split('T'),
         parts = [
-            pieces[0],
-            pieces[1],
-            pieces[2],
-            pieces[3] + '.db'
+            pieces[0] + '.db'
         ];
-    return parts.join('-');
+    return parts;
 }
 
 function getTodayDbPath() {
@@ -35,26 +32,28 @@ function getTodayDbPath() {
     var appDir = path.dirname(require.main.filename);
     var dbFullPath = appDir + '\\db\\' + getTodayDbName();
     if (!fs.existsSync(dbFullPath)) {
-        fs.writeFile(dbFullPath, getTodayDbName() + '\n', function(err) {
-            if (err)
-                throw err;
+        fs.writeFile(dbFullPath, getTodayDbName() + '\n', function(error) {
+            if (error){
+				console.log('There was an error creating the database');
+				console.log(error);	
+			}
+			else{
+				console.log('New database created : ' + dbFullPath);
+			}
         });
     }
     return dbFullPath;
 }
 
 function getDbNameFromPubDate(pubDate) {
-        var pieces = pubDate.toString()
-            .split(' '),
+        var pieces = pubDate
+            .split('T'),
             parts = [
-            pieces[0],
-            pieces[1],
-            pieces[2],
-            pieces[3] + '.db'
+            pieces[0] + '.db'
         ];
-        return parts.join('-');
-    }
-    // Yammer client
+        return parts;
+}
+// Yammer client
 var YammerAPIClient = require('yammer-rest-api-client');
 var client = new YammerAPIClient({
     token: yammerDeveloperToken
@@ -99,10 +98,12 @@ var j = schedule.scheduleJob(rule, function() {
                 meta = this.meta,
                 item;
             while (item = stream.read()) {
-                // check if feed is valid	
+				// check if item infos are not null	
                 if (item.link && item.pubdate && item.title) {
+					// Format pubDate
+					var pubDateIso = item.pubdate.toISOString();
                     // check if the news is from today
-                    if (getDbNameFromPubDate(item.pubdate) == getTodayDbName()) {
+                    if (getDbNameFromPubDate(pubDateIso) == getTodayDbName()) {
                         // We open our daily db and check if the link is inside
                         var content = fs.readFileSync(getTodayDbPath(), 'utf8');
                         if (content.indexOf(item.link) < 0) {
