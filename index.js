@@ -1,9 +1,8 @@
 // Config
-var yammerGroupId = '11111111';
-var yammerDeveloperToken = '1111-abC123';
-var RssCheckIntervalInMn = 1;
+var yammerGroupId = "11111111";
+var yammerDeveloperToken = "4006-abc123";
+var RssCheckIntervalInMn = 5;
 var RssFeedsList = [
-    'http://blog.soat.fr/feed/',
     'http://blog.eleven-labs.com/feed/',
     'http://feeds2.feedburner.com/kgaut',
     'http://wodric.com/feed/',
@@ -30,7 +29,7 @@ function getTodayDbName() {
 function getTodayDbPath() {
     var path = require('path');
     var appDir = path.dirname(require.main.filename);
-    var dbFullPath = appDir + '\\db\\' + getTodayDbName();
+    var dbFullPath = appDir + '/db/' + getTodayDbName();
     if (!fs.existsSync(dbFullPath)) {
         fs.writeFile(dbFullPath, getTodayDbName() + '\n', function(error) {
             if (error){
@@ -67,6 +66,7 @@ var schedule = require('node-schedule');
 var rule = new schedule.RecurrenceRule();
 rule.minute = new schedule.Range(0, 59, RssCheckIntervalInMn);
 var j = schedule.scheduleJob(rule, function() {
+getTodayDbPath();
     // Loop through RSS Feed links
     RssFeedsList.forEach(function(link) {
         // Parse feeds  
@@ -103,7 +103,7 @@ var j = schedule.scheduleJob(rule, function() {
 					// Format pubDate
 					var pubDateIso = item.pubdate.toISOString();
                     // check if the news is from today
-                    if (getDbNameFromPubDate(pubDateIso) == getTodayDbName()) {
+                    if (getDbNameFromPubDate(pubDateIso).toString() === getTodayDbName().toString()) {
                         // We open our daily db and check if the link is inside
                         var content = fs.readFileSync(getTodayDbPath(), 'utf8');
                         if (content.indexOf(item.link) < 0) {
